@@ -1,9 +1,8 @@
 from database.setup import create_tables
 from database.connection import get_db_connection
-from models.article import Article
-from models.author import Author
-from models.magazine import Magazine 
-
+from models.Article import Article
+from models.Author import Author
+from models.Magazine import Magazine
 
 def main():
     # Initialize the database and create tables
@@ -20,52 +19,49 @@ def main():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    try:
+        # Create an author
+        cursor.execute('INSERT INTO authors (name) VALUES (?)', (author_name,))
+        author_id = cursor.lastrowid
 
-    '''
-        The following is just for testing purposes, 
-        you can modify it to meet the requirements of your implmentation.
-    '''
+        # Create a magazine
+        cursor.execute('INSERT INTO magazines (name, category) VALUES (?, ?)', (magazine_name, magazine_category))
+        magazine_id = cursor.lastrowid
 
-    # Create an author
-    cursor.execute('INSERT INTO authors (name) VALUES (?)', (author_name,))
-    author_id = cursor.lastrowid # Use this to fetch the id of the newly created author
+        # Commit the author and magazine to the database
+        conn.commit()
 
-    # Create a magazine
-    cursor.execute('INSERT INTO magazines (name, category) VALUES (?,?)', (magazine_name, magazine_category))
-    magazine_id = cursor.lastrowid # Use this to fetch the id of the newly created magazine
+        # Create Author and Magazine instances
+        author = Author(author_id, author_name)
+        magazine = Magazine(magazine_id, magazine_name, magazine_category)
 
-    # Create an article
-    cursor.execute('INSERT INTO articles (title, content, author_id, magazine_id) VALUES (?, ?, ?, ?)',
-                   (article_title, article_content, author_id, magazine_id))
+        # Create an Article instance
+        article = Article(title=article_title, content=article_content, author=author.id, magazine=magazine.id)
 
-    conn.commit()
+        print("\n--- Data Saved Successfully ---")
+        print(f"Author: {author}")
+        print(f"Magazine: {magazine}")
+        print(f"Article: {article}")
 
-    # Query the database for inserted records. 
-    # The following fetch functionality should probably be in their respective models
+        # Display all magazines, authors, and articles from the database
+        print("\n--- All Magazines ---")
+        for magazine in Magazine.all():
+            print(magazine)
 
-    cursor.execute('SELECT * FROM magazines')
-    magazines = cursor.fetchall()
+        print("\n--- All Authors ---")
+        for author in Author.all():
+            print(author)
 
-    cursor.execute('SELECT * FROM authors')
-    authors = cursor.fetchall()
+        print("\n--- All Articles ---")
+        for article in Article.all():
+            print(article)
 
-    cursor.execute('SELECT * FROM articles')
-    articles = cursor.fetchall()
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
-    conn.close()
+    finally:
+        conn.close()
 
-    # Display results
-    print("\nMagazines:")
-    for magazine in magazines:
-        print(Magazine(magazine["id"], magazine["name"], magazine["category"]))
-
-    print("\nAuthors:")
-    for author in authors:
-        print(Author(author["id"], author["name"]))
-
-    print("\nArticles:")
-    for article in articles:
-        print(Article(article["id"], article["title"], article["content"], article["author_id"], article["magazine_id"]))
 
 if __name__ == "__main__":
     main()

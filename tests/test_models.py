@@ -1,20 +1,23 @@
 import unittest
-from models.author import Author
-from models.article import Article
-from models.magazine import Magazine
+from models.Author import Author
+from models.Magazine import Magazine
+from models.Article import Article
 
 class TestModels(unittest.TestCase):
     def test_author_creation(self):
-        author = Author(1, "John Doe")
+        author = Author("John Doe")
         self.assertEqual(author.name, "John Doe")
 
-    def test_article_creation(self):
-        article = Article(None, "Test Title", "Test Content", 1, 1)
-        self.assertEqual(article.title, "Test Title")
-
     def test_magazine_creation(self):
-        magazine = Magazine(1, "Tech Weekly")
-        self.assertEqual(magazine.name, "Tech Weekly")
+        magazine = Magazine("Tech Today", "Technology")
+        self.assertEqual(magazine.name, "Tech Today")
+        self.assertEqual(magazine.category, "Technology")
+
+    def test_article_creation(self):
+        author = Author("Jane Smith")
+        magazine = Magazine("Health Weekly", "Health")
+        article = Article(author, magazine, "Healthy Living")
+        self.assertEqual(article.title, "Healthy Living")
 
 if __name__ == "__main__":
     unittest.main()
